@@ -1,0 +1,23 @@
+# Interactive Demo for Crowler
+
+Enter URL and Options
+
+Enter URL:
+
+Get Screenshot:
+
+Submit
+
+Loading... Please wait.
+
+## Response
+
+  * Markdown
+  * Cleaned HTML
+  * Media
+  * Extracted Content
+  * Screenshot
+  * Python Code
+
+
+

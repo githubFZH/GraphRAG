@@ -1,0 +1,242 @@
+## Try It Now
+
+URL(s)
+
+Min Words Threshold 1 5 10 15 20 25
+
+CSS Selector
+
+Extraction Strategy NoExtractionStrategy CosineStrategy LLMExtractionStrategy
+
+Chunking Strategy RegexChunking NlpSentenceChunking TopicSegmentationChunking FixedLengthWordChunking SlidingWindowChunking
+
+Provider Model groq/llama3-70b-8192 groq/llama3-8b-8192 groq/mixtral-8x7b-32768 gpt-4-turbo gpt-3.5-turbo gpt-4o claude-3-haiku claude-3-opus claude-3-sonnet
+
+API Token
+
+Keyword Filter
+
+Instruction
+
+Bypass Cache
+
+Screenshot
+
+Extract Blocks
+
+Crawl
+
+Loading... Please wait.
+
+JSON  Cleaned HTML  Markdown  Medias  Screenshot 
+
+
+cURL  Python  REST API 
+    
+    
+                            
+                            Copy
+                        
+    
+    
+                            
+                            Copy
+                        
+    
+    
+                            
+                            Copy
+                        
+    
+    
+                            
+                            Copy
+                        
+
+## Outline
+
+  * Installation
+  * How to Guide
+  * Chunking Strategies
+  * Extraction Strategies
+
+
+
+# Installation 💻
+
+There are three ways to use Crawl4AI: 
+
+  1. As a library 
+  2. As a local server (Docker) 
+  3. As a Google Colab notebook. 
+
+
+
+To install Crawl4AI as a library, follow these steps:
+
+  1. Install the package from GitHub: 
+    
+        virtualenv venv
+    source venv/bin/activate
+    pip install "crawl4ai[all] @ git+https://github.com/unclecode/crawl4ai.git"
+                
+
+  2. Run the following command to load the required models. This is optional, but it will boost the performance and speed of the crawler. You need to do this only once. 
+    
+        crawl4ai-download-models
+
+  3. Alternatively, you can clone the repository and install the package locally: 
+    
+        virtualenv venv
+    source venv/bin/activate
+    git clone https://github.com/unclecode/crawl4ai.git
+    cd crawl4ai
+    pip install -e .[all]
+    
+
+  4. Use docker to run the local server: 
+    
+        docker build -t crawl4ai . 
+    # docker build --platform linux/amd64 -t crawl4ai . For Mac users
+    docker run -d -p 8000:80 crawl4ai
+
+
+
+
+For more information about how to run Crawl4AI as a local server, please refer to the GitHub repository. 
+
+# How to Guide
+
+🌟 Welcome to the Crawl4ai Quickstart Guide! Let's dive into some web crawling fun!
+
+First Step: Create an instance of WebCrawler and call the `warmup()` function. 
+    
+    
+    crawler = WebCrawler()
+    crawler.warmup()
+
+🧠 Understanding 'bypass_cache' and 'include_raw_html' parameters:
+
+First crawl (caches the result):
+    
+    
+    result = crawler.run(url="https://www.nbcnews.com/business")
+
+Second crawl (Force to crawl again):
+    
+    
+    result = crawler.run(url="https://www.nbcnews.com/business", bypass_cache=True)
+
+⚠️ Don't forget to set ``bypass_cache`` to True if you want to try different strategies for the same URL. Otherwise, the cached result will be returned. You can also set ``always_by_pass_cache`` in constructor to True to always bypass the cache. 
+
+Crawl result without raw HTML content:
+    
+    
+    result = crawler.run(url="https://www.nbcnews.com/business", include_raw_html=False)
+
+📄 The 'include_raw_html' parameter, when set to True, includes the raw HTML content in the response. By default, it is set to True.
+
+Set `always_by_pass_cache` to True:
+    
+    
+    crawler.always_by_pass_cache = True
+
+📸 Let's take a screenshot of the page!
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        screenshot=True
+    )
+    with open("screenshot.png", "wb") as f:
+        f.write(base64.b64decode(result.screenshot))
+
+🧩 Let's add a chunking strategy: RegexChunking!
+
+Using RegexChunking:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        chunking_strategy=RegexChunking(patterns=["\n\n"])
+    )
+
+Using NlpSentenceChunking:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        chunking_strategy=NlpSentenceChunking()
+    )
+
+🧠 Let's get smarter with an extraction strategy: CosineStrategy!
+
+Using CosineStrategy:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        extraction_strategy=CosineStrategy(word_count_threshold=10, max_dist=0.2, linkage_method="ward", top_k=3)
+    )
+
+🤖 Time to bring in the big guns: LLMExtractionStrategy without instructions!
+
+Using LLMExtractionStrategy without instructions:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        extraction_strategy=LLMExtractionStrategy(provider="openai/gpt-4o", api_token=os.getenv('OPENAI_API_KEY'))
+    )
+
+📜 Let's make it even more interesting: LLMExtractionStrategy with instructions!
+
+Using LLMExtractionStrategy with instructions:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        extraction_strategy=LLMExtractionStrategy(
+        provider="openai/gpt-4o",
+        api_token=os.getenv('OPENAI_API_KEY'),
+        instruction="I am interested in only financial news"
+    )
+    )
+
+🎯 Targeted extraction: Let's use a CSS selector to extract only H2 tags!
+
+Using CSS selector to extract H2 tags:
+    
+    
+    result = crawler.run(
+        url="https://www.nbcnews.com/business",
+        css_selector="h2"
+    )
+
+🖱️ Let's get interactive: Passing JavaScript code to click 'Load More' button!
+
+Using JavaScript to click 'Load More' button:
+    
+    
+    js_code = ["""
+    const loadMoreButton = Array.from(document.querySelectorAll('button')).find(button => button.textContent.includes('Load More'));
+    loadMoreButton && loadMoreButton.click();
+    """]
+    crawler = WebCrawler(verbos=crawler_strategy, always_by_pass_cache=True)
+    result = crawler.run(url="https://www.nbcnews.com/business", js = js_code)
+
+Remember that you can pass multiple JavaScript code snippets in the list. They all will be executed in the order they are passed.
+
+🎉 Congratulations! You've made it through the Crawl4ai Quickstart Guide! Now go forth and crawl the web like a pro! 🕸️
+
+# Chunking Strategies
+
+Content for chunking strategies...
+
+# Extraction Strategies
+
+Content for extraction strategies...
+
+## 🤔 Why building this?
+
+In recent times, we've witnessed a surge of startups emerging, riding the AI hype wave and charging for services that should rightfully be accessible to everyone. 🌍💸 One such example is scraping and crawling web pages and transforming them into a format suitable for Large Language Models (LLMs). 🕸️🤖 We believe that building a business around this is not the right approach; instead, it should definitely be open-source. 🆓🌟 So, if you possess the skills to build such tools and share our philosophy, we invite you to join our "Robinhood" band and help set these products free for the benefit of all. 🤝💪 
